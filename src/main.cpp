@@ -335,6 +335,25 @@ void onWifiConnected() {
 
 // Poll for access token
 void pollForToken() {
+
+	// TODO add client secret here?
+	/*
+	======================================================================
+	pollForToken()
+	[HTTPS] Method: POST, Response code: 401
+	[HTTPS] Other HTTP code: 401
+	Response: {
+		"error":"invalid_client",
+		"error_description":"AADSTS7000218: The request body must contain the following parameter: 'client_assertion' or 'client_secret'.\r\nTrace ID: xxxr\nCorrelation ID: xxx\r\nTimestamp: 2021-05-07 12:40:54Z",
+		"error_codes":[7000218],
+		"timestamp":"2021-05-07 12:40:54Z",
+		"trace_id":"xxx",
+		"correlation_id":"xxx5",
+		"error_uri":"https://login.microsoftonline.com/error?code=7000218"}
+	Device login failed
+	======================================================================
+	*/
+
 	String payload = "client_id=" + String(paramClientIdValue) + "&grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=" + device_code;
 	Serial.printf("pollForToken()\n");
 

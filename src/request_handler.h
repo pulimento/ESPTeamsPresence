@@ -66,6 +66,7 @@ boolean requestJsonApi(JsonDocument& doc, String url, String payload = "", size_
 			// File found at server (HTTP 200, 301), or HTTP 400 with response payload
 			if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY || httpCode == HTTP_CODE_BAD_REQUEST) {
 				// Parse JSON data
+				DBG_PRINTLN(https.getString());
 				DeserializationError error = deserializeJson(doc, *client);
 				client->stop();
 				delete client;
@@ -291,7 +292,23 @@ void handleStartDevicelogin() {
 		// Request devicelogin context
 		const size_t capacity = JSON_OBJECT_SIZE(6) + 540;
 		DynamicJsonDocument doc(capacity);
-		boolean res = requestJsonApi(doc, "https://login.microsoftonline.com/" + String(paramTenantValue) + "/oauth2/v2.0/devicecode", "client_id=" + String(paramClientIdValue) + "&scope=offline_access%20openid%20Presence.Read", capacity);
+
+		boolean MOCK_RESPONSE = false;
+		boolean res = false;
+
+		DBG_PRINTLN(F("handleStartDevicelogin() START REQUEST"));
+		if (MOCK_RESPONSE) {
+			// Mock response
+			DBG_PRINTLN(F("handleStartDevicelogin() About to mock response"));
+			res = true;
+			String fakeResponse = "{\"user_code\":\"aaabbabab\",\"device_code\":\"asdf\",\"verification_uri\":\"https://microsoft.com/devicelogin\",\"expires_in\":900,\"interval\":5,\"message\":\"To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code FAKEFAKEFAKE to authenticate.\"}";
+			DeserializationError err = deserializeJson(doc, fakeResponse);
+		} else {
+			// Default code
+			DBG_PRINTLN(F("handleStartDevicelogin() About to do the request"));
+			res = requestJsonApi(doc, "https://login.microsoftonline.com/" + String(paramTenantValue) + "/oauth2/v2.0/devicecode", "client_id=" + String(paramClientIdValue) + "&scope=offline_access%20openid%20Presence.Read", capacity);
+		}
+		DBG_PRINTLN(F("handleStartDevicelogin() END REQUEST"));
 
 		if (res && doc.containsKey("device_code") && doc.containsKey("user_code") && doc.containsKey("interval") && doc.containsKey("verification_uri") && doc.containsKey("message")) {
 			// Save device_code, user_code and interval
