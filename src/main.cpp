@@ -357,7 +357,7 @@ void pollForToken() {
 
 	String payload = "client_id=" + String(paramClientIdValue) + "&grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=" + device_code;
 	// This flow seems to be mangled. I need to write again to IT, and I don't want
-	// Alternative: Get access_token and refresh_token directly
+	// Alternative: Get access_token and refresh_token directly -> https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-id-token-as-well-hybrid-flow
 
 	Serial.printf("pollForToken()\n");
 
