@@ -293,16 +293,27 @@ void handleStartDevicelogin() {
 		const size_t capacity = JSON_OBJECT_SIZE(6) + 540;
 		DynamicJsonDocument doc(capacity);
 
-		boolean MOCK_RESPONSE = false;
+		boolean MOCK_RESPONSE = true;
 		boolean res = false;
+		String receivedUserCode = "CLBNCQCMG";
+		String receivedDeviceCode = "CAQABAAEAAAD--DLA3VO7QrddgJg7WevrBIobVYjPaYrjE4voO-LbRnGwcvoj85R17Gp09K7FGcGZT_S6zWjwTEX-tixZKCqcP7zVEzoxd4gNOjF_mXrdwgc3n-YXFiefARtohEqXAHvPO_mUpQKnj_vfsfbHhlnzI2LhfVEFJXZ9mNugC7DiONQG_jsPQcEFU2vYTN_L4z4gAA";
 
 		DBG_PRINTLN(F("handleStartDevicelogin() START REQUEST"));
 		if (MOCK_RESPONSE) {
 			// Mock response
 			DBG_PRINTLN(F("handleStartDevicelogin() About to mock response"));
+			DBG_PRINTLN("ReceivedUserCode: " + receivedUserCode);
 			res = true;
-			String fakeResponse = "{\"user_code\":\"aaabbabab\",\"device_code\":\"asdf\",\"verification_uri\":\"https://microsoft.com/devicelogin\",\"expires_in\":900,\"interval\":5,\"message\":\"To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code FAKEFAKEFAKE to authenticate.\"}";
+			String fakeResponse = "{\"user_code\":\"" + receivedUserCode + "\",\"device_code\":\"" + receivedDeviceCode + "\",\"verification_uri\":\"https://microsoft.com/devicelogin\",\"expires_in\":900,\"interval\":5,\"message\":\"To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code FAKEFAKEFAKE to authenticate.\"}";
+			DBG_PRINTLN("fakeResponse: " + fakeResponse);
+
 			DeserializationError err = deserializeJson(doc, fakeResponse);
+			if (err) {
+				DBG_PRINT(F("handleStartDevicelogin() - deserializeJson() failed with code: "));
+				DBG_PRINTLN(err.c_str());
+			} else {
+				DBG_PRINTLN("End deserializing mock response with success!");
+			}
 		} else {
 			// Default code
 			DBG_PRINTLN(F("handleStartDevicelogin() About to do the request"));
@@ -312,6 +323,7 @@ void handleStartDevicelogin() {
 
 		if (res && doc.containsKey("device_code") && doc.containsKey("user_code") && doc.containsKey("interval") && doc.containsKey("verification_uri") && doc.containsKey("message")) {
 			// Save device_code, user_code and interval
+			DBG_PRINTLN(F("Valid response! Saving things!"));
 			device_code = doc["device_code"].as<String>();
 			user_code = doc["user_code"].as<String>();
 			interval = doc["interval"].as<unsigned int>();
@@ -330,6 +342,7 @@ void handleStartDevicelogin() {
 			// Send JSON response
 			server.send(200, "application/json", responseDoc.as<String>());
 		} else {
+			DBG_PRINTLN(F("Response doesn't have a thing that I want :("));
 			server.send(500, "application/json", F("{\"error\": \"devicelogin_unknown_response\"}"));
 		}
 	} else {

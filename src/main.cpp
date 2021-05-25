@@ -21,6 +21,7 @@
 #include "FS.h"
 #include "SPIFFS.h"
 #include "ESP32_RMT_Driver.h"
+#include "secrets.h"
 
 
 // Global settings
@@ -355,6 +356,9 @@ void pollForToken() {
 	*/
 
 	String payload = "client_id=" + String(paramClientIdValue) + "&grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=" + device_code;
+	// This flow seems to be mangled. I need to write again to IT, and I don't want
+	// Alternative: Get access_token and refresh_token directly
+
 	Serial.printf("pollForToken()\n");
 
 	// const size_t capacity = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(7) + 530; // Case 1: HTTP 400 error (not yet ready)
